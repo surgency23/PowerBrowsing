@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const moment = require("moment");
+const _ = require("lodash");
 const baseURL = 'https://www.capitalcityonlineauction.com';
 const homeURL = '/cgi-bin/mncal.cgi?ccoa';
 const fullHomeURL = baseURL + homeURL;
@@ -185,7 +186,10 @@ async function localBrowsing() {
     });
     let endTime = moment();
     console.log((endTime.diff(startTime, 'minutes')) + " total minutes to complete")
+    console.log(objects.length + " total links before deduplicate")
+    objects = _.uniqBy(objects, "link");
     console.log(objects.length + " total tabs to open")
+    
     for (let i = 0; i < objects.length; i++) {
         let page = await browser.newPage();
         await page.goto(objects[i].link);
