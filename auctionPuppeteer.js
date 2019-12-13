@@ -1,6 +1,6 @@
-const puppeteer = require("puppeteer");
-const moment = require("moment");
-const _ = require("lodash");
+const puppeteer = require("./node_modules/puppeteer");
+const moment = require("./node_modules/moment");
+const _ = require("./node_modules/lodash");
 const baseURL = 'https://www.capitalcityonlineauction.com';
 const homeURL = '/cgi-bin/mncal.cgi?ccoa';
 const fullHomeURL = baseURL + homeURL;
