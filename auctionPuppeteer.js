@@ -12,7 +12,8 @@ function auctionTitleAndLinkScrape() {
     return new Promise(async (resolve, reject) => {
         try {
             const browser = await puppeteer.launch({
-                headless: true
+                headless: true,
+                executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
             });
             const page = await browser.newPage();
             await page.goto(fullHomeURL);
@@ -75,13 +76,13 @@ async function dataScrape() {
 
 
 }
-
 async function crawler() { //maybe before this func i can write a func to read a draft to get the recipient information and then the keywords that they want
     let auctions = await dataScrape();
      //"Home Decor", "computer Chair", "industrial", "shelf"
 
     const browser = await puppeteer.launch({
-        headless: true
+        headless: true,
+        executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
     });
     let html = []
     for (let auction = 0; auction < auctions.length; auction++) {
@@ -111,7 +112,6 @@ async function crawler() { //maybe before this func i can write a func to read a
     await browser.close()
     return html
 }
-
 async function filterContent() {
     let p = await crawler();
     let returnObj = [];
@@ -182,7 +182,8 @@ async function localBrowsing() {
 
     const browser = await puppeteer.launch({
         headless: false,
-        defaultViewport: null
+        defaultViewport: null,
+        executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
     });
     let endTime = moment();
     console.log((endTime.diff(startTime, 'minutes')) + " total minutes to complete")
@@ -197,8 +198,6 @@ async function localBrowsing() {
 
     }
 }
-localBrowsing();
-
 async function savetoJson() { // file system module to perform file operations
     const fs = require('fs');
 
@@ -219,4 +218,5 @@ async function savetoJson() { // file system module to perform file operations
         console.log((endTime.diff(startTime, 'minutes')) + " total minutes to complete")
     });
 }
+localBrowsing();
 //savetoJson();
