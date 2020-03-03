@@ -6,6 +6,8 @@ const homeURL = '/cgi-bin/mncal.cgi?ccoa';
 const fullHomeURL = baseURL + homeURL;
 const startTime = moment();
 const searchTerms = process.argv.slice(2);
+const searchLocations = ["DONN","RIVERSIDE","BLATT","JACKSON","JACKSON RD","BLATT BLVD","GREENPOINTE","GREEN POINTE","43017","43235","43085","43229","43231","43230","43224","43214","43220","43221","43202","43211","43219","43201","43212","43213","43203","43215","43209","43204","43222","43206","43227","43228","43223","43232","43207"]
+
 
 
 function auctionTitleAndLinkScrape() {
@@ -16,7 +18,8 @@ function auctionTitleAndLinkScrape() {
                 executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
             });
             const page = await browser.newPage();
-            await page.goto(fullHomeURL);
+            await page.goto(baseURL);//fullHomeURL
+            await page.waitFor(5000);
             let urls = await page.evaluate(() => {
                 let results = [];
                 const links = Array.from(document.querySelectorAll('#wrapper font > a'));
@@ -47,30 +50,14 @@ async function dataScrape() {
         auctionObjects[auctionObject].title = auctionObjects[auctionObject].title.toUpperCase();
         //uppercase it just to make sure everything is consistent
         //auctionObjects[auctionObject].title = auctionObjects[auctionObject].title.slice(auctionObjects[auctionObject].title.indexOf('ENDING')) //nothing before the word ending is important to me
-
-        if ((auctionObjects[auctionObject].title.includes("DONN") || auctionObjects[auctionObject].title.includes("RIVERSIDE") ||
-                +auctionObjects[auctionObject].title.includes("BLATT") || auctionObjects[auctionObject].title.includes("JACKSON") ||
-                +auctionObjects[auctionObject].title.includes("BLATT BLVD") || auctionObjects[auctionObject].title.includes("JACKSON RD") ||
-                +auctionObjects[auctionObject].title.includes("GREEN POINTE") || auctionObjects[auctionObject].title.includes("GREENPOINTE") ||
-                +auctionObjects[auctionObject].title.includes("43017") || auctionObjects[auctionObject].title.includes("43235") ||
-                +auctionObjects[auctionObject].title.includes("43085") || auctionObjects[auctionObject].title.includes("43229") ||
-                +auctionObjects[auctionObject].title.includes("43231") || auctionObjects[auctionObject].title.includes("43230") ||
-                +auctionObjects[auctionObject].title.includes("43224") || auctionObjects[auctionObject].title.includes("43214") ||
-                +auctionObjects[auctionObject].title.includes("43220") || auctionObjects[auctionObject].title.includes("43221") ||
-                +auctionObjects[auctionObject].title.includes("43202") || auctionObjects[auctionObject].title.includes("43211") ||
-                +auctionObjects[auctionObject].title.includes("43219") || auctionObjects[auctionObject].title.includes("43201") ||
-                +auctionObjects[auctionObject].title.includes("43212") || auctionObjects[auctionObject].title.includes("43213") ||
-                +auctionObjects[auctionObject].title.includes("43203") || auctionObjects[auctionObject].title.includes("43215") ||
-                +auctionObjects[auctionObject].title.includes("43209") || auctionObjects[auctionObject].title.includes("43204") ||
-                +auctionObjects[auctionObject].title.includes("43222") || auctionObjects[auctionObject].title.includes("43206") ||
-                +auctionObjects[auctionObject].title.includes("43227") || auctionObjects[auctionObject].title.includes("43228") ||
-                +auctionObjects[auctionObject].title.includes("43223") || auctionObjects[auctionObject].title.includes("43232") ||
-                +auctionObjects[auctionObject].title.includes("43207")) & (!auctionObjects[auctionObject].title.includes("HAS ENDED"))) {
-
-            holderObject['url'] = auctionObjects[auctionObject].url
-            holderObject['title'] = auctionObjects[auctionObject].title;
-            closeAuctions.push(holderObject);
-        } else {}
+        for(let location of searchLocations){
+            if (auctionObjects[auctionObject].title.includes(location) & (!auctionObjects[auctionObject].title.includes("HAS ENDED"))) {
+                console.log(location);
+                holderObject['url'] = auctionObjects[auctionObject].url;
+                holderObject['title'] = auctionObjects[auctionObject].title;
+                closeAuctions.push(holderObject);
+            } else {}
+        }
     };
     return closeAuctions;
 
@@ -86,7 +73,7 @@ async function crawler() { //maybe before this func i can write a func to read a
     });
     let html = []
     for (let auction = 0; auction < auctions.length; auction++) {
-        await console.log(`working on auction ${auction + 1} of ${auctions.length}`)
+        await console.log(`working on auction ${auction + 1} of ${auctions.length}`);
         for (let i = 0; i < searchTerms.length; i++) {
             let page = await browser.newPage();
             await page.goto(baseURL + auctions[auction].url);
@@ -129,7 +116,7 @@ async function filterContent() {
                 console.log(e);
                 console.log("first if else statement")
             }
-            temp.splice(0, 1)
+            temp.splice(0, 1);
             for (let j = 0; j <= temp.length - 1; j++) {
 
                 try {
@@ -148,7 +135,7 @@ async function filterContent() {
                     lineItems[5] = lineItems[5].toString();
 
                     if (lineItems[5] === "&nbsp;") {
-                        lineItems[5] = "Current Amount Not Found"
+                        lineItems[5] = "Current Amount Not Found";
                     };
                     let x = {
                         "link": 'https://www.capitalcityonlineauction.com' + lineItems[1],
@@ -159,7 +146,7 @@ async function filterContent() {
                     };
 
 
-                    returnObj.push(x)
+                    returnObj.push(x);
                 } catch (e) {
                     console.log(e);
                     console.log(temp[j]);
@@ -185,18 +172,18 @@ async function localBrowsing() {
         defaultViewport: null,
         executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
     });
-    let endTime = moment();
-    console.log((endTime.diff(startTime, 'minutes')) + " total minutes to complete")
-    console.log(objects.length + " total links before deduplicate")
+    console.log(objects.length + " total links before deduplicate");
     objects = _.uniqBy(objects, "link");
-    console.log(objects.length + " total tabs to open")
+    console.log(objects.length + " total tabs to open");
     
     for (let i = 0; i < objects.length; i++) {
         let page = await browser.newPage();
         await page.goto(objects[i].link);
-        console.log(`opening tab ${i + 1} out of ${objects.length}`)
+        console.log(`opening tab ${i + 1} out of ${objects.length}`);
 
     }
+    let endTime = moment();
+    console.log((endTime.diff(startTime, 'minutes')) + " total minutes to complete");
 }
 async function savetoJson() { // file system module to perform file operations
     const fs = require('fs');
