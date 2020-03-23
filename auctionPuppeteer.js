@@ -6,7 +6,7 @@ const homeURL = '/cgi-bin/mncal.cgi?ccoa';
 const fullHomeURL = baseURL + homeURL;
 const startTime = moment();
 const searchTerms = process.argv.slice(2);
-const searchLocations = ["DONN","RIVERSIDE","BLATT","JACKSON","JACKSON RD","BLATT BLVD","GREENPOINTE","GREEN POINTE","43017","43235","43085","43229","43231","43230","43224","43214","43220","43221","43202","43211","43219","43201","43212","43213","43203","43215","43209","43204","43222","43206","43227","43228","43223","43232","43207"]
+const searchLocations = ["DONN", "RIVERSIDE", "BLATT", "JACKSON", "JACKSON RD", "BLATT BLVD", "GREENPOINTE", "GREEN POINTE", "43017", "43235", "43085", "43229", "43231", "43230", "43224", "43214", "43220", "43221", "43202", "43211", "43219", "43201", "43212", "43213", "43203", "43215", "43209", "43204", "43222", "43206", "43227", "43228", "43223", "43232", "43207"]
 
 
 
@@ -18,7 +18,7 @@ function auctionTitleAndLinkScrape() {
                 executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
             });
             const page = await browser.newPage();
-            await page.goto(baseURL);//fullHomeURL
+            await page.goto(baseURL); //fullHomeURL
             await page.waitFor(5000);
             let urls = await page.evaluate(() => {
                 let results = [];
@@ -50,7 +50,7 @@ async function dataScrape() {
         auctionObjects[auctionObject].title = auctionObjects[auctionObject].title.toUpperCase();
         //uppercase it just to make sure everything is consistent
         //auctionObjects[auctionObject].title = auctionObjects[auctionObject].title.slice(auctionObjects[auctionObject].title.indexOf('ENDING')) //nothing before the word ending is important to me
-        for(let location of searchLocations){
+        for (let location of searchLocations) {
             if (auctionObjects[auctionObject].title.includes(location) & (!auctionObjects[auctionObject].title.includes("HAS ENDED"))) {
                 console.log(location);
                 holderObject['url'] = auctionObjects[auctionObject].url;
@@ -65,7 +65,7 @@ async function dataScrape() {
 }
 async function crawler() { //maybe before this func i can write a func to read a draft to get the recipient information and then the keywords that they want
     let auctions = await dataScrape();
-     //"Home Decor", "computer Chair", "industrial", "shelf"
+    //"Home Decor", "computer Chair", "industrial", "shelf"
 
     const browser = await puppeteer.launch({
         headless: true,
@@ -74,25 +74,30 @@ async function crawler() { //maybe before this func i can write a func to read a
     let html = []
     for (let auction = 0; auction < auctions.length; auction++) {
         await console.log(`working on auction ${auction + 1} of ${auctions.length}`);
+
         for (let i = 0; i < searchTerms.length; i++) {
-            let page = await browser.newPage();
-            await page.goto(baseURL + auctions[auction].url);
-            await page.waitForSelector("#SearchArea > form:nth-child(1) > input[type=text]:nth-child(2)"); //sometimes it fails here. attempt retry logic?
-            await page.type("#SearchArea > form:nth-child(1) > input[type=text]:nth-child(2)", searchTerms[i]);
-            await page.click("#SearchArea > form:nth-child(1) > input[type=submit]:nth-child(4)");
-            await page.waitFor(1000);
-            let htmlContent = await page.content();
+            try {
+                let page = await browser.newPage();
+                await page.goto(baseURL + auctions[auction].url);
+                await page.waitForSelector("#SearchArea > form:nth-child(1) > input[type=text]:nth-child(2)"); //sometimes it fails here. attempt retry logic?
+                await page.type("#SearchArea > form:nth-child(1) > input[type=text]:nth-child(2)", searchTerms[i]);
+                await page.click("#SearchArea > form:nth-child(1) > input[type=submit]:nth-child(4)");
+                await page.waitFor(1000);
+                let htmlContent = await page.content();
 
 
-            let htmlObj = await {
-                "title": auctions[auction].title,
-                "content": htmlContent,
-                "searchTerm": searchTerms[i],
-                "auctionLink": baseURL + auctions[auction].url
-            };
-            await html.push(htmlObj);
-            await console.log(`pushed ${searchTerms[i]} results to html array`);
-            await page.close();
+                let htmlObj = await {
+                    "title": auctions[auction].title,
+                    "content": htmlContent,
+                    "searchTerm": searchTerms[i],
+                    "auctionLink": baseURL + auctions[auction].url
+                };
+                await html.push(htmlObj);
+                await console.log(`pushed ${searchTerms[i]} results to html array`);
+                await page.close();
+            } catch (e) {
+                console.log(`Failed to push some search value from auction ${auction+1}DEBUG THIS AND GET IT TO PRING SEARCH VALUE AND TRIM UP FAILURE TIME`)
+            }
         }
 
     }
@@ -175,7 +180,7 @@ async function localBrowsing() {
     console.log(objects.length + " total links before deduplicate");
     objects = _.uniqBy(objects, "link");
     console.log(objects.length + " total tabs to open");
-    
+
     for (let i = 0; i < objects.length; i++) {
         let page = await browser.newPage();
         await page.goto(objects[i].link);
