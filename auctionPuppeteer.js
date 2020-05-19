@@ -4,7 +4,7 @@ const _ = require("./node_modules/lodash");
 const baseURL = 'https://www.capitalcityonlineauction.com';
 const startTime = moment();
 const searchTerms = process.argv.slice(2);
-const searchLocations = ["DONN","RIVERSIDE","BLATT","JACKSON","JACKSON RD","BLATT BLVD","GREENPOINTE","GREEN POINTE","43017","43235","43085","43229","43231","43230","43224","43214","43220","43221","43202","43211","43219","43201","43212","43213","43203","43215","43209","43204","43222","43206","43227","43228","43223","43232","43207"]
+const searchLocations = ["DONN", "RIVERSIDE", "BLATT", "JACKSON", "JACKSON RD", "BLATT BLVD", "GREENPOINTE", "GREEN POINTE", "43017", "43235", "43085", "43229", "43231", "43230", "43224", "43214", "43220", "43221", "43202", "43211", "43219", "43201", "43212", "43213", "43203", "43215", "43209", "43204", "43222", "43206", "43227", "43228", "43223", "43232", "43207"]
 
 
 
@@ -82,6 +82,7 @@ async function crawler() { //maybe before this func i can write a func to read a
     let html = []
     for (let auction = 0; auction < auctions.length; auction++) {
         await console.log(`working on auction ${auction + 1} of ${auctions.length}`);
+
         for (let i = 0; i < searchTerms.length; i++) {
             try {
                 let page = await browser.newPage();
@@ -183,7 +184,7 @@ async function localBrowsing() {
     console.log(objects.length + " total links before deduplicate");
     objects = _.uniqBy(objects, "link");
     console.log(objects.length + " total tabs to open");
-    
+
     for (let i = 0; i < objects.length; i++) {
         let page = await browser.newPage();
         await page.goto(objects[i].link);
