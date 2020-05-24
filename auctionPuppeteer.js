@@ -3,9 +3,8 @@ const moment = require("./node_modules/moment");
 const _ = require("./node_modules/lodash");
 const baseURL = 'https://www.capitalcityonlineauction.com';
 const startTime = moment();
-const searchTerms = process.argv.slice(2);
 const searchLocations = ["DONN", "RIVERSIDE", "BLATT", "JACKSON", "JACKSON RD", "BLATT BLVD", "GREENPOINTE", "GREEN POINTE", "43017", "43235", "43085", "43229", "43231", "43230", "43224", "43214", "43220", "43221", "43202", "43211", "43219", "43201", "43212", "43213", "43203", "43215", "43209", "43204", "43222", "43206", "43227", "43228", "43223", "43232", "43207"]
-
+let searchTerms = process.argv.slice(2);
 
 
 function auctionTitleAndLinkScrape() {
@@ -42,19 +41,25 @@ async function dataScrape() {
     let closeAuctions = [];
     let auctionObjects = await auctionTitleAndLinkScrape();
     let dateFilter = "";
-    switch(moment(searchTerms[0], "dddd").isValid())
-    {
+    searchTerms.forEach( i => {
+        switch(moment(i, "dddd").isValid()){
         case true:
-        dateFilter=searchTerms[0].toUpperCase();
+        dateFilter=i.toUpperCase();
+        console.log(`You are searching for auction ending on ${dateFilter.toLowerCase()}`)
+                searchTerms.splice(searchTerms.indexOf(i),1)
+
         break;
         default:
-            if(searchTerms[0].toUpperCase() === "TONIGHT"){
-                dateFilter=searchTerms[0].toUpperCase();
-            }
+            if(i.toUpperCase() === "TONIGHT"){
+                dateFilter=i.toUpperCase();
+                console.log(`You are searching for auction ending ${dateFilter.toLowerCase()}`)
+                searchTerms.splice(searchTerms.indexOf(i),1)
             break;
 
     }
-    console.log(dateFilter)
+}})
+
+    
     for (let auctionObject = 0; auctionObject <= auctionObjects.length - 1; auctionObject++) {
         let holderObject = {};
         auctionObjects[auctionObject].title = auctionObjects[auctionObject].title.toUpperCase();
