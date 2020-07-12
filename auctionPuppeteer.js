@@ -3,9 +3,19 @@ const moment = require("./node_modules/moment");
 const _ = require("./node_modules/lodash");
 const baseURL = 'https://www.capitalcityonlineauction.com';
 const startTime = moment();
+const days = {
+    monday:true,
+    tuesday:true,
+    wednesday:true,
+    thursday:true,
+    friday:true,
+    saturday:true,
+    sunday:true,
+    tonight:true
+
+}
 const searchLocations = ["DONN", "RIVERSIDE", "BLATT", "JACKSON", "JACKSON RD", "BLATT BLVD", "GREENPOINTE", "GREEN POINTE", "43017", "43235", "43085", "43229", "43231", "43230", "43224", "43214", "43220", "43221", "43202", "43211", "43219", "43201", "43212", "43213", "43203", "43215", "43209", "43204", "43222", "43206", "43227", "43228", "43223", "43232", "43207"]
 let searchTerms = process.argv.slice(2);
-
 
 function auctionTitleAndLinkScrape() {
     return new Promise(async (resolve, reject) => {
@@ -42,22 +52,22 @@ async function dataScrape() {
     let auctionObjects = await auctionTitleAndLinkScrape();
     let dateFilter = "";
     searchTerms.forEach( i => {
-        switch(moment(i, "dddd").isValid()){
+        switch(days[`${i}`]){
         case true:
         dateFilter=i.toUpperCase();
         console.log(`You are searching for auction ending on ${dateFilter.toLowerCase()}`)
                 searchTerms.splice(searchTerms.indexOf(i),1)
 
         break;
-        default:
+        /*default:
             if(i.toUpperCase() === "TONIGHT"){
                 dateFilter=i.toUpperCase();
                 console.log(`You are searching for auction ending ${dateFilter.toLowerCase()}`)
                 searchTerms.splice(searchTerms.indexOf(i),1)
-            break;
+            break;*/
 
     }
-}})
+})
 
     
     for (let auctionObject = 0; auctionObject <= auctionObjects.length - 1; auctionObject++) {
@@ -123,7 +133,7 @@ async function filterContent() {
     let returnObj = [];
     for (let i = 0; i <= p.length - 1; i++) {
 
-        if (await !p[i].content.includes("No data found.  Try another search.") || (await !p[i].content.includes("ended"))) {
+        if (await !p[i].content.includes("No data found.  Try another search.") && (await !p[i].content.includes("ended"))) {
             let temp = [];
                 if (await p[i].content.includes("<tr class=\"DataRow\" id=\"")) {
                     temp = p[i].content.split("<tr class=\"DataRow\" id=\""); //one of these split functions dont work all the time
