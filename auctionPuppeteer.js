@@ -1,6 +1,7 @@
 const puppeteer = require("./node_modules/puppeteer");
 const moment = require("./node_modules/moment");
 const _ = require("./node_modules/lodash");
+const os = require('os');
 const baseURL = 'https://www.capitalcityonlineauction.com';
 const startTime = moment();
 const days = {
@@ -15,6 +16,17 @@ const days = {
 
 }
 const searchLocations = ["DONN", "RIVERSIDE", "BLATT", "JACKSON", "JACKSON RD", "BLATT BLVD", "GREENPOINTE", "GREEN POINTE", "43017", "43235", "43085", "43229", "43231", "43230", "43224", "43214", "43220", "43221", "43202", "43211", "43219", "43201", "43212", "43213", "43203", "43215", "43209", "43204", "43222", "43206", "43227", "43228", "43223", "43232", "43207"]
+
+let executablePath;
+switch(os.type().toLowerCase()){
+    case 'darwin':
+        executablePath = '/Applications/Chromium.app/Contents/MacOS/Chromium'
+    break;
+    case 'windows_nt':
+        executablePath= './node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe'
+    break;
+}
+
 let searchTerms = process.argv.slice(2);
 
 function auctionTitleAndLinkScrape() {
@@ -22,7 +34,7 @@ function auctionTitleAndLinkScrape() {
         try {
             const browser = await puppeteer.launch({
                 headless: true,
-                executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
+                executablePath: executablePath
             });
             const page = await browser.newPage();
             await page.goto(baseURL);
@@ -92,7 +104,7 @@ async function crawler() { //maybe before this func i can write a func to read a
 
     const browser = await puppeteer.launch({
         headless: true,
-        executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
+        executablePath: executablePath
     });
     let html = []
     for (let auction = 0; auction < auctions.length; auction++) {
@@ -194,7 +206,7 @@ async function localBrowsing() {
     const browser = await puppeteer.launch({
         headless: false,
         defaultViewport: null,
-        executablePath: "./node_modules/puppeteer/.local-chromium/win32-674921/chrome-win/chrome.exe"
+        executablePath: executablePath
     });
     console.log(objects.length + " total links before deduplicate");
     objects = _.uniqBy(objects, "link");
